@@ -1,0 +1,37 @@
+name: CI Pipeline
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - "main"
+  push:
+    branches:
+      - "main"
+    paths-ignore:
+      - ".github/**"
+      - "*.md"
+      - "docs/**"
+      - "LICENSE"
+      - "Makefile"
+
+jobs:
+  Check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.22.3
+          cache: true
+
+      - name: Check license header
+        uses: apache/skywalking-eyes@v0.4.0
+
+      - name: Check
+        shell: bash
+        run: make check
+

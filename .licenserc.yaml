@@ -1,0 +1,32 @@
+header:
+  license:
+    spdx-id: Apache-2.0
+    copyright-owner: Michele Zanotti <m.zanotti019@gmail.com>
+    software-name: duplik8s
+
+  paths-ignore:
+    - 'config/**'
+    - '.*'
+    - '.*/**'
+    - 'Makefile'
+    - 'bin/**'
+    - 'hack/**'
+    - 'dist'
+    - 'licenses'
+    - '**/*.md'
+    - '**/go.mod'
+    - '**/go.sum'
+    - 'LICENSE'
+    - 'NOTICE'
+    - 'doc/**'
+    - 'docs/**'
+
+  language:
+    Go:
+      extensions:
+        - ".go"
+      comment_style_id: SlashAsterisk
+
+dependency:
+  files:
+    - go.mod
