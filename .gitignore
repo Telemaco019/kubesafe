@@ -17,6 +17,9 @@
 # Dependency directories (remove the comment below to include it)
 # vendor/
 
+# MacOS stuff
+.DS_Store
+
 # Go workspace file
 go.work
 go.work.sum

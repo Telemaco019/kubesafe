@@ -19,6 +19,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"sort"
 
 	"github.com/charmbracelet/huh"
 	"github.com/spf13/cobra"
@@ -53,6 +54,7 @@ func selectContext(settings core.Settings, args []string) (string, error) {
 			selectableContexts = append(selectableContexts, context)
 		}
 	}
+	sort.Strings(selectableContexts)
 	if len(selectableContexts) == 0 {
 		return "", fmt.Errorf("no contexts are available")
 	}
