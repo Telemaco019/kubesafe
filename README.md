@@ -10,7 +10,7 @@
 
 ---
 
-![](./docs/demo.jpg)
+![](./docs/demo.png)
 
 **kubesafe** allows you to safely run commands acrosss multiple Kubernetes contexts.
 By allowing you to mark specific contexts as "safe" and define a list of protected commands, kubesafe makes sure
