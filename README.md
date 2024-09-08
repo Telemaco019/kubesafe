@@ -2,7 +2,7 @@
 
 ---
 
-**Kubesafe** 🔁 Tired of accidentally running dangerous commands on the wrong Kubernetes cluster? Meet kubesafe — your new best friend for safely managing multiple Kubernetes contexts!
+**Kubesafe** 🔁 Tired of accidentally running dangerous commands on the wrong Kubernetes cluster? Meet kubesafe — your safety net for cluster management. 
 
 <p>
     <a href="https://github.com/Telemaco019/kubesafe/actions"><img src="https://github.com/Telemaco019/kubesafe/actions/workflows/ci.yaml/badge.svg" alt="Build Status"></a>
@@ -103,6 +103,13 @@ kubesafe context remove my-context
 ```
 
 ## Similar tools
+Kubesafe draws inspiration from existing kubectl plugins that offer similar features but are restricted to working exclusively with kubectl:
+
+* [kubectl-prompt](https://github.com/jordanwilson230/kubectl-plugins/tree/krew?tab=readme-ov-file#kubectl-prompt): A kubectl plugin that displays a warning prompt when issuing commands in a flagged cluster or namespace
+* [kubectl-safe](https://github.com/rumstead/kubectl-safe): A kubectl plugin to prevent shooting yourself in the foot with edit commands.
+
+
+
 
 ## License
 
