@@ -34,8 +34,11 @@ func runCmd(cmd string, args []string) {
 	execCommand.Stdout = &output
 	execCommand.Stderr = &output
 
+	execCommand.Stdout = os.Stdout
+	execCommand.Stderr = os.Stderr
+	execCommand.Stdin = os.Stdin
+
 	_ = execCommand.Run()
-	fmt.Print(output.String())
 }
 
 func NewRootCmd() *cobra.Command {
