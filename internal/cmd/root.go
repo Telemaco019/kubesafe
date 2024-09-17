@@ -96,7 +96,7 @@ func NewRootCmd() *cobra.Command {
 				return err
 			}
 			if proceed {
-				runCmd(wrappedCmd, args)
+				runCmd(wrappedCmd, wrappedArgs)
 				return nil
 			}
 			fmt.Println("Aborted")
