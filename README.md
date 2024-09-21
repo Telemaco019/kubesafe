@@ -37,7 +37,7 @@ kubesafe helm upgrade my-release stable/my-chart
 Kubesafe seamlessly wraps any CLI command you provide as the first argument (e.g., kubectl, helm, etc.).
 If you attempt to run a protected command in a safe context, kubesafe will prompt you for confirmation before proceeding.
 
-For convinience, you can set aliases in your shell configuration:
+For convenience, you can set aliases in your shell configuration:
 
 ```shell
 alias kubectl='kubesafe kubectl'
