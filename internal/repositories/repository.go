@@ -50,7 +50,11 @@ func NewFileSystemRepository() (*FileSystemRepository, error) {
 	}
 
 	// Use config dir
-	kubesafeDir := path.Join(homeDir, ".config", "kubesafe")
+  configDir, err := os.UserConfigDir()
+  if err != nil {
+    return nil, err
+  }
+	kubesafeDir := path.Join(configDir, "kubesafe")
 	exists, err = utils.FileExists(kubesafeDir)
 	if err != nil {
 		return nil, err
