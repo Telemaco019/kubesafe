@@ -36,9 +36,33 @@ func NewFileSystemRepository() (*FileSystemRepository, error) {
 	if err != nil {
 		return nil, err
 	}
-	path := path.Join(homeDir, core.DEFAULT_SETTINGS_FILE_NAME)
+
+	// Legacy path for backward compatibility
+	legacyPath := path.Join(homeDir, ".kubesafe.yaml")
+	exists, err := utils.FileExists(legacyPath)
+	if err != nil {
+		return nil, err
+	}
+	if exists {
+		return &FileSystemRepository{
+			path: legacyPath,
+		}, nil
+	}
+
+	// Use config dir
+	kubesafeDir := path.Join(homeDir, ".config", "kubesafe")
+	exists, err = utils.FileExists(kubesafeDir)
+	if err != nil {
+		return nil, err
+	}
+	if !exists {
+		err = os.Mkdir(kubesafeDir, 0755)
+		if err != nil {
+			return nil, err
+		}
+	}
 	return &FileSystemRepository{
-		path: path,
+		path: path.Join(kubesafeDir, "config.yaml"),
 	}, nil
 }
 

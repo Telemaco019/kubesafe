@@ -19,7 +19,7 @@ package core
 import "fmt"
 
 const (
-	DEFAULT_SETTINGS_FILE_NAME = ".kubesafe.yaml"
+	DEFAULT_SETTINGS_FILE_NAME = "kubesafe.yaml"
 )
 
 var DEFAULT_KUBECTL_PROTECTED_COMMANDS = []string{
