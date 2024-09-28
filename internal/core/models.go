@@ -18,7 +18,6 @@ package core
 
 import "fmt"
 
-
 var DEFAULT_KUBECTL_PROTECTED_COMMANDS = []string{
 	// Kubectl commands
 	"delete",

@@ -19,51 +19,14 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"sort"
 
 	"github.com/charmbracelet/huh"
 	"github.com/spf13/cobra"
+	"github.com/telemaco019/kubesafe/internal/cmd/selectors"
 	"github.com/telemaco019/kubesafe/internal/core"
 	"github.com/telemaco019/kubesafe/internal/repositories"
 	"github.com/telemaco019/kubesafe/internal/utils"
 )
-
-func selectContext(settings core.Settings, args []string) (string, error) {
-	availableContexts, err := utils.GetAvailableContexts()
-	if err != nil {
-		return "", err
-	}
-	var contextName string
-
-	// If context is passed as arg, check if is already included in settings
-	if len(args) > 0 {
-		if _, ok := availableContexts[args[0]]; !ok {
-			return "", fmt.Errorf("context %q is not available", args[0])
-		}
-		if settings.ContainsContext(args[0]) {
-			return "", fmt.Errorf("context %q is already included in safe contexts", args[0])
-		}
-		contextName = args[0]
-		return contextName, nil
-	}
-
-	// Otherwise, let the user select a context
-	selectableContexts := make([]string, 0)
-	for _, context := range availableContexts {
-		if !settings.ContainsContext(context) {
-			selectableContexts = append(selectableContexts, context)
-		}
-	}
-	sort.Strings(selectableContexts)
-	if len(selectableContexts) == 0 {
-		return "", fmt.Errorf("no contexts are available")
-	}
-	contextName, err = utils.SelectItem(selectableContexts, "Select a context to add: ")
-	if err != nil {
-		return "", err
-	}
-	return contextName, nil
-}
 
 func selectProtectedCommands() ([]string, error) {
 	var commands []string
@@ -98,8 +61,13 @@ func newAddContextCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
+			availableContexts, err := utils.GetAvailableContexts()
+			if err != nil {
+				return err
+			}
 			// Select context and safe actions
-			contextName, err := selectContext(*settings, args)
+			contextSelector := selectors.NewContextSelector(*settings, availableContexts, args)
+			contextName, err := contextSelector.SelectContext()
 			if err != nil {
 				return err
 			}
