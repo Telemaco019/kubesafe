@@ -94,6 +94,15 @@ kubesafe context add "prod-.*"
 
 This will mark all context starting with `prod-` as safe.
 
+### Defining custom protected commands
+
+By default, kubesafe allows you to interactively choose commands to protect from a predefined list.
+However, if you prefer to specify your own custom commands, you can provide them as a comma-separated list like this:
+
+```shell
+kubesafe context add my-context --commands "delete,apply,upgdrade"
+```
+
 ### Listing safe contexts
 
 To display all your configured safe contexts and their protected commands, use:
