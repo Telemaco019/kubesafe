@@ -140,8 +140,8 @@ func newListContextsCmd() *cobra.Command {
 
 func newRemoveContextCmd() *cobra.Command {
 	removeContextCmd := &cobra.Command{
-		Use: "remove",
-    Aliases: []string{"rm"},
+		Use:     "remove",
+		Aliases: []string{"rm"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Load kubesafe settings
 			repo, err := repositories.NewFileSystemRepository()
