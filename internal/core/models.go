@@ -16,7 +16,11 @@
 
 package core
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/telemaco019/kubesafe/internal/utils"
+)
 
 var DEFAULT_KUBECTL_PROTECTED_COMMANDS = []string{
 	// Kubectl commands
@@ -37,8 +41,8 @@ var DEFAULT_KUBECTL_PROTECTED_COMMANDS = []string{
 
 type ContextConf struct {
 	Name              string   `yaml:"name"`
+	IsRegex           bool     `yaml:"isRegex"`
 	ProtectedCommands []string `yaml:"commands"`
-	// Namespace string `yaml:"namespace"`
 }
 
 func (c *ContextConf) IsProtected(command string) bool {
@@ -57,22 +61,25 @@ func NewContextConf(
 	return ContextConf{
 		Name:              contextName,
 		ProtectedCommands: safeActions,
+		IsRegex:           utils.IsRegex(contextName),
 	}
 }
 
 type Settings struct {
 	Contexts []ContextConf `yaml:"contexts"`
 
-	contextLookup map[string]ContextConf
+	contextLookup  map[string]ContextConf
+	contextRegexes []ContextConf
 }
 
-func NewSettings() Settings {
-	return Settings{
-		Contexts:      make([]ContextConf, 0),
-		contextLookup: make(map[string]ContextConf),
+func NewSettings(contexts ...ContextConf) Settings {
+	res := Settings{
+		Contexts: contexts,
 	}
+	res.init()
+	return res
 }
-func (s *Settings) Init() {
+func (s *Settings) init() {
 	if s.Contexts == nil {
 		s.Contexts = make([]ContextConf, 0)
 	}
@@ -81,12 +88,15 @@ func (s *Settings) Init() {
 	}
 	for _, context := range s.Contexts {
 		s.contextLookup[context.Name] = context
+		if context.IsRegex {
+			s.contextRegexes = append(s.contextRegexes, context)
+		}
 	}
 }
 
 func (s *Settings) AddContext(context ContextConf) error {
 	if s.ContainsContext(context.Name) {
-		return fmt.Errorf("context %q is already included in safe contexts", context)
+		return fmt.Errorf("context %q is already included in safe contexts", context.Name)
 	}
 	s.Contexts = append(s.Contexts, context)
 	s.contextLookup[context.Name] = context
@@ -110,7 +120,17 @@ func (s *Settings) RemoveContext(context string) error {
 }
 
 func (s *Settings) GetContextConf(context string) (ContextConf, bool) {
+	// First check the lookup map
 	conf, ok := s.contextLookup[context]
+	if ok {
+		return conf, ok
+	}
+	// If the context is not found in the lookup map, check the regexes
+	for _, regexConf := range s.contextRegexes {
+		if utils.RegexMatches(regexConf.Name, context) {
+			return regexConf, true
+		}
+	}
 	return conf, ok
 }
 

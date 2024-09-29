@@ -102,3 +102,65 @@ func TestSettings_RemoveContext(t *testing.T) {
 		})
 	}
 }
+
+func TestGetContextConf(t *testing.T) {
+	testCases := []struct {
+		name        string
+		contextName string
+		settings    Settings
+		wantContext ContextConf
+		wantOk      bool
+	}{
+		{
+			name:        "[found] Context is string",
+			contextName: "test",
+			settings: NewSettings(
+				NewContextConf("test", []string{"delete", "patch"}),
+			),
+			wantContext: NewContextConf("test", []string{"delete", "patch"}),
+			wantOk:      true,
+		},
+		{
+			name:        "[not found] Context is string",
+			contextName: "unexisting",
+			settings: NewSettings(
+				NewContextConf("test", []string{"delete", "patch"}),
+			),
+			wantContext: ContextConf{},
+			wantOk:      false,
+		},
+		{
+			name:        "[found] Context is regex",
+			contextName: "prod-cluster-1",
+			settings: NewSettings(
+				NewContextConf("prod-*", []string{"delete"}),
+			),
+			wantContext: NewContextConf("prod-*", []string{"delete"}),
+			wantOk:      true,
+		},
+		{
+			name:        "[not found] Context is regex",
+			contextName: "dev-cluster-1",
+			settings: NewSettings(
+				NewContextConf("prod-*", []string{"delete"}),
+			),
+			wantContext: ContextConf{},
+			wantOk:      false,
+		},
+		{
+			name:        "[not found] Empty settings",
+			contextName: "test",
+			settings:    NewSettings(),
+			wantContext: ContextConf{},
+			wantOk:      false,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			context, ok := tc.settings.GetContextConf(tc.contextName)
+			assert.DeepEqual(t, context, tc.wantContext)
+			assert.Equal(t, ok, tc.wantOk)
+		})
+	}
+}

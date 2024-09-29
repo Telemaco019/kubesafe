@@ -29,3 +29,11 @@ func IsRegex(value string) bool {
 	_, err := regexp.Compile(value)
 	return err == nil
 }
+
+func RegexMatches(regex string, value string) bool {
+	r, err := regexp.Compile(regex)
+	if err != nil {
+		return false
+	}
+	return r.MatchString(value)
+}
