@@ -71,7 +71,7 @@ Kubesafe makes it easy to manage your safe contexts and protected commands. To s
 kubesafe --help
 ```
 
-### Adding a safe context
+### Add a safe context
 
 To add a safe context, simply execute:
 
@@ -94,7 +94,16 @@ kubesafe context add "prod-.*"
 
 This will mark all context starting with `prod-` as safe.
 
-### Listing safe contexts
+### Define custom protected commands
+
+By default, kubesafe allows you to interactively choose commands to protect from a predefined list.
+However, if you prefer to specify your own custom commands, you can provide them as a comma-separated list like this:
+
+```shell
+kubesafe context add my-context --commands "delete,apply,upgdrade"
+```
+
+### List safe contexts
 
 To display all your configured safe contexts and their protected commands, use:
 
@@ -102,7 +111,7 @@ To display all your configured safe contexts and their protected commands, use:
 kubesafe context list
 ```
 
-### Removing a safe context
+### Remove a safe context
 
 To remove a context from your list of safe contexts, run:
 

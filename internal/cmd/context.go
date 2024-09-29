@@ -28,7 +28,17 @@ import (
 	"github.com/telemaco019/kubesafe/internal/utils"
 )
 
-func selectProtectedCommands() ([]string, error) {
+const (
+	FLAG_COMMANDS = "commands"
+)
+
+func selectProtectedCommands(cmd *cobra.Command) ([]string, error) {
+	// If user passed the commands as flag, return them
+	if cmd.Flags().Changed(FLAG_COMMANDS) {
+		commands, err := cmd.Flags().GetStringSlice(FLAG_COMMANDS)
+		return commands, err
+	}
+	// Otherwise, let the user interactively select the commands
 	var commands []string
 	multiSelect := huh.NewMultiSelect[string]().
 		Title("Select proteced commands").
@@ -42,7 +52,6 @@ func selectProtectedCommands() ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	return commands, nil
 }
 
@@ -71,7 +80,7 @@ func newAddContextCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			protectedCommands, err := selectProtectedCommands()
+			protectedCommands, err := selectProtectedCommands(cmd)
 			if err != nil {
 				return err
 			}
@@ -90,6 +99,9 @@ func newAddContextCmd() *cobra.Command {
 			return nil
 		},
 	}
+
+	// Add flags
+	addContextCmd.Flags().StringSlice(FLAG_COMMANDS, nil, "Comma separated list of safe commands")
 
 	return addContextCmd
 }
@@ -128,7 +140,8 @@ func newListContextsCmd() *cobra.Command {
 
 func newRemoveContextCmd() *cobra.Command {
 	removeContextCmd := &cobra.Command{
-		Use: "remove",
+		Use:     "remove",
+		Aliases: []string{"rm"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Load kubesafe settings
 			repo, err := repositories.NewFileSystemRepository()
