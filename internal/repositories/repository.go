@@ -50,10 +50,10 @@ func NewFileSystemRepository() (*FileSystemRepository, error) {
 	}
 
 	// Use config dir
-  configDir, err := os.UserConfigDir()
-  if err != nil {
-    return nil, err
-  }
+	configDir, err := os.UserConfigDir()
+	if err != nil {
+		return nil, err
+	}
 	kubesafeDir := path.Join(configDir, "kubesafe")
 	exists, err = utils.FileExists(kubesafeDir)
 	if err != nil {
@@ -104,6 +104,6 @@ func (r *FileSystemRepository) Load() (*core.Settings, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error unmarshalling settings file: %w", err)
 	}
-	settings.Init()
-	return &settings, nil
+	res := core.NewSettings(settings.Contexts...)
+	return &res, nil
 }
