@@ -94,7 +94,7 @@ kubesafe context add "prod-.*"
 
 This will mark all context starting with `prod-` as safe.
 
-### Listing Safe Contexts
+### Listing safe contexts
 
 To display all your configured safe contexts and their protected commands, use:
 
