@@ -142,7 +142,7 @@ func TestGetContextConf(t *testing.T) {
 			name:        "[not found] Context is regex",
 			contextName: "dev-cluster-1",
 			settings: NewSettings(
-				NewContextConf("prod-*", []string{"delete"}),
+				NewContextConf("prod-.*", []string{"delete"}),
 			),
 			wantContext: ContextConf{},
 			wantOk:      false,

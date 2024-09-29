@@ -2,7 +2,7 @@
 
 ---
 
-**Kubesafe** 🔁 Tired of accidentally running dangerous commands on the wrong Kubernetes cluster? Meet kubesafe — your safety net for cluster management. 
+**Kubesafe** 🔁 Tired of accidentally running dangerous commands on the wrong Kubernetes cluster? Meet kubesafe — your safety net for cluster management.
 
 <p>
     <a href="https://github.com/Telemaco019/kubesafe/actions"><img src="https://github.com/Telemaco019/kubesafe/actions/workflows/ci.yaml/badge.svg" alt="Build Status"></a>
@@ -34,7 +34,7 @@ kubesafe kubectl delete pod my-pod
 kubesafe helm upgrade my-release stable/my-chart
 ```
 
-Kubesafe seamlessly wraps any CLI command you provide as the first argument (e.g., kubectl, helm, etc.).
+Kubesafe seamlessly wraps any CLI command you provide as the first argument (e.g., kubectl, helm, kubecolor, etc.).
 If you attempt to run a protected command in a safe context, kubesafe will prompt you for confirmation before proceeding.
 
 For convenience, you can set aliases in your shell configuration:
@@ -86,6 +86,14 @@ Alternatively, you can add a safe context directly by specifying its name:
 kubesafe context add my-context
 ```
 
+The provided value can also be a regular expression to match multiple contexts:
+
+```shell
+kubesafe context add "prod-.*"
+```
+
+This will mark all context starting with `prod-` as safe.
+
 ### Listing Safe Contexts
 
 To display all your configured safe contexts and their protected commands, use:
@@ -103,13 +111,11 @@ kubesafe context remove my-context
 ```
 
 ## Similar tools
+
 Kubesafe draws inspiration from existing kubectl plugins that offer similar features but are restricted to working exclusively with kubectl:
 
-* [kubectl-prompt](https://github.com/jordanwilson230/kubectl-plugins/tree/krew?tab=readme-ov-file#kubectl-prompt): A kubectl plugin that displays a warning prompt when issuing commands in a flagged cluster or namespace
-* [kubectl-safe](https://github.com/rumstead/kubectl-safe): A kubectl plugin to prevent shooting yourself in the foot with edit commands.
-
-
-
+- [kubectl-prompt](https://github.com/jordanwilson230/kubectl-plugins/tree/krew?tab=readme-ov-file#kubectl-prompt): A kubectl plugin that displays a warning prompt when issuing commands in a flagged cluster or namespace
+- [kubectl-safe](https://github.com/rumstead/kubectl-safe): A kubectl plugin to prevent shooting yourself in the foot with edit commands.
 
 ## License
 
