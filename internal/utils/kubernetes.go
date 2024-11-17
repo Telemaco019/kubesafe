@@ -18,6 +18,8 @@ package utils
 
 import (
 	"fmt"
+	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
+	"os"
 	"path/filepath"
 
 	"k8s.io/client-go/tools/clientcmd"
@@ -45,15 +47,21 @@ func NewNamespacedContext(namespace, context string) *NamespacedContext {
 	}
 }
 
-func GetAvailableContexts() (map[string]string, error) {
-	home := homedir.HomeDir()
-	if home == "" {
-		return nil, fmt.Errorf("could not find home directory")
+func loadKubeconfig() (*clientcmdapi.Config, error) {
+	kubeconfigPath := os.Getenv("KUBECONFIG")
+	if kubeconfigPath == "" {
+		home := homedir.HomeDir()
+		if home == "" {
+			return nil, fmt.Errorf("could not find home directory")
+		}
+		kubeconfigPath = filepath.Join(home, ".kube", "config")
 	}
 
-	// TODO: cache this
-	kubeconfig := filepath.Join(home, ".kube", "config")
-	config, err := clientcmd.LoadFromFile(kubeconfig)
+	return clientcmd.LoadFromFile(kubeconfigPath)
+}
+
+func GetAvailableContexts() (map[string]string, error) {
+	config, err := loadKubeconfig()
 	if err != nil {
 		return nil, err
 	}
@@ -66,14 +74,7 @@ func GetAvailableContexts() (map[string]string, error) {
 }
 
 func GetNamespacedContext(cobraArgs []string) (*NamespacedContext, error) {
-	home := homedir.HomeDir()
-	if home == "" {
-		return nil, fmt.Errorf("could not find home directory")
-	}
-
-	// TODO: cache this
-	kubeconfig := filepath.Join(home, ".kube", "config")
-	config, err := clientcmd.LoadFromFile(kubeconfig)
+	config, err := loadKubeconfig()
 	if err != nil {
 		return nil, err
 	}
