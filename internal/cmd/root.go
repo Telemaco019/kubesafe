@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package cmd
 
 import (
@@ -116,6 +115,18 @@ func NewRootCmd() *cobra.Command {
 			// If the command is safe, then just run it
 			if !contextConf.IsProtected(wrappedArgs[0]) {
 				runCmd(wrappedCmd, wrappedArgs)
+				return nil
+			}
+			// If no-interactive mode, just abort
+			noInteractive, _ := cmd.Flags().GetBool(FLAG_NO_INTERACTIVE)
+			if noInteractive {
+				utils.PrintWarning(
+					fmt.Sprintf(
+						"[WARNING] Running a protected command on safe context %q.",
+						namespacedContext.Context,
+					),
+				)
+				fmt.Println("Aborted")
 				return nil
 			}
 			// Otherwise, ask for confirmation

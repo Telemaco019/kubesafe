@@ -48,6 +48,11 @@ func SelectItem[T comparable](items []T, selectMessage string) (T, error) {
 	return selected, err
 }
 
+func PrintWarning(msg string) {
+	c := color.New(color.FgYellow)
+	c.Printf("%s\n", msg)
+}
+
 func Confirm(message string) (bool, error) {
 	c := color.New(color.FgYellow)
 	c.Printf("%s (y/n): ", message)
