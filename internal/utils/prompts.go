@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Michele Zanotti <m.zanotti019@gmail.com>
+ * Copyright 2025 Michele Zanotti <m.zanotti019@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,6 +46,11 @@ func SelectItem[T comparable](items []T, selectMessage string) (T, error) {
 		Value(&selected).
 		Run()
 	return selected, err
+}
+
+func PrintWarning(msg string) {
+	c := color.New(color.FgYellow)
+	c.Printf("%s\n", msg)
 }
 
 func Confirm(message string) (bool, error) {

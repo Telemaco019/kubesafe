@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Michele Zanotti <m.zanotti019@gmail.com>
+ * Copyright 2025 Michele Zanotti <m.zanotti019@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,13 @@ import (
 	"os/exec"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 	"github.com/telemaco019/kubesafe/internal/repositories"
 	"github.com/telemaco019/kubesafe/internal/utils"
+)
+
+const (
+	FLAG_NO_INTERACTIVE = "no-interactive"
 )
 
 func runCmd(cmd string, args []string) {
@@ -41,6 +46,31 @@ func runCmd(cmd string, args []string) {
 	_ = execCommand.Run()
 }
 
+type ParsedCommand struct {
+	WrappedCmd  string
+	WrappedArgs []string
+}
+
+func parseCommand(cmd *cobra.Command, args []string) ParsedCommand {
+	_ = cmd.Flags().Parse(args)
+	kubesafeFlags := make(map[string]struct{})
+	cmd.Flags().VisitAll(func(f *pflag.Flag) {
+		kubesafeFlags["--"+f.Name] = struct{}{}
+	})
+
+	argsWithoutKubesafeFlags := make([]string, 0)
+	for _, arg := range args {
+		if _, ok := kubesafeFlags[arg]; !ok {
+			argsWithoutKubesafeFlags = append(argsWithoutKubesafeFlags, arg)
+		}
+	}
+
+	return ParsedCommand{
+		WrappedCmd:  argsWithoutKubesafeFlags[0],
+		WrappedArgs: argsWithoutKubesafeFlags[1:],
+	}
+}
+
 func NewRootCmd() *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:                "kubesafe [command] [args]",
@@ -55,8 +85,10 @@ func NewRootCmd() *cobra.Command {
 			}
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			wrappedCmd := args[0]
-			wrappedArgs := args[1:]
+			parsedCmd := parseCommand(cmd, args)
+			wrappedCmd := parsedCmd.WrappedCmd
+			wrappedArgs := parsedCmd.WrappedArgs
+
 			namespacedContext, err := utils.GetNamespacedContext(args)
 			if err != nil {
 				return err
@@ -85,6 +117,18 @@ func NewRootCmd() *cobra.Command {
 				runCmd(wrappedCmd, wrappedArgs)
 				return nil
 			}
+			// If no-interactive mode, just abort
+			noInteractive, _ := cmd.Flags().GetBool(FLAG_NO_INTERACTIVE)
+			if noInteractive {
+				utils.PrintWarning(
+					fmt.Sprintf(
+						"[WARNING] Running a protected command on safe context %q.",
+						namespacedContext.Context,
+					),
+				)
+				fmt.Println("Aborted")
+				return nil
+			}
 			// Otherwise, ask for confirmation
 			proceed, err := utils.Confirm(
 				fmt.Sprintf(
@@ -106,6 +150,8 @@ func NewRootCmd() *cobra.Command {
 
 	// Add sub commands
 	rootCmd.AddCommand(NewContextCmd())
+	rootCmd.Flags().
+		Bool(FLAG_NO_INTERACTIVE, false, "If set, kubesafe will directly prevent the execution on protected contexts without asking for confirmation")
 	return rootCmd
 }
 
