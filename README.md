@@ -119,6 +119,18 @@ To remove a context from your list of safe contexts, run:
 kubesafe context remove my-context
 ```
 
+### Non-interactive mode
+
+Kubesafe supports a non-interactive mode, which can be enabled by adding the `--no-interactive` flag directly after the `kubesafe` command.
+
+In this mode, kubesafe will skip confirmation prompts and automatically abort the command if it is protected.
+
+Example:
+
+```shell
+kubesafe --no-interactive kubectl delete pod my-pod
+```
+
 ## Similar tools
 
 Kubesafe draws inspiration from existing kubectl plugins that offer similar features but are restricted to working exclusively with kubectl:
