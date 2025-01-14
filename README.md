@@ -131,6 +131,50 @@ Example:
 kubesafe --no-interactive kubectl delete pod my-pod
 ```
 
+## VSCode Integration
+
+You can hook up `kubesafe` with the [Kubernetes VSCode Extension](https://marketplace.visualstudio.com/items?itemName=ms-kubernetes-tools.vscode-kubernetes-tools)
+to add an extra safety layer to your workflow. Once set up, you'll get a warning popup whenever you try to run a protected command in a safe context.
+
+Just make sure `kubesafe` is running in non-interactive mode (`--no-interactive`) and tell the extension to
+use `kubesafe` as your `kubectl` command.
+
+### How to configure the Kubernetes VSCode Extension
+
+1. The extension settings only allows to set the kubectl path, so you need to create a shell script that calls `kubesafe` with the `--no-interactive` flag.
+
+   Create a file named `kubesafe-kubectl` and give it execution permissions:
+
+   ```shell
+   cat <<'EOT' > kubesafe-kubectl
+   #!/bin/sh
+   kubesafe --no-interactive kubectl "$@"
+   EOT
+
+   chmod +x kubesafe-kubectl
+   ```
+
+2. Set the path to the `kubesafe-kubectl` script in the Kubernetes extension settings:
+
+   - Open the VSCode settings (`Cmd + ,` on Mac, `Ctrl + ,` on Windows/Linux)
+   - Search for `Kubernetes: Kubectl Path`
+   - Set the value of the setting `Vscode-kubernetes: Kubectl-path` to the path of the `kubesafe-kubectl` script.
+   <details>
+   <summary><b>Screenshot</b></summary>
+
+   ![](./docs/example-vscode-settings.png)
+
+    </details>
+
+3. That's it! Now, whenever you run a kubectl command in VSCode, you'll get a warning popup if you try to run a protected command in a safe context.
+
+   <details>
+   <summary><b>Example</b></summary>
+
+   ![](./docs/example-vscode-popup.png)
+
+    </details>
+
 ## Similar tools
 
 Kubesafe draws inspiration from existing kubectl plugins that offer similar features but are restricted to working exclusively with kubectl:
