@@ -18,9 +18,11 @@ package utils
 
 import (
 	"fmt"
-	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	"os"
 	"path/filepath"
+	"strings"
+
+	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
@@ -47,16 +49,25 @@ func NewNamespacedContext(namespace, context string) *NamespacedContext {
 	}
 }
 
-func loadKubeconfig() (*clientcmdapi.Config, error) {
+func getKubeconfigPath() (string, error) {
 	kubeconfigPath := os.Getenv("KUBECONFIG")
 	if kubeconfigPath == "" {
 		home := homedir.HomeDir()
 		if home == "" {
-			return nil, fmt.Errorf("could not find home directory")
+			return "", fmt.Errorf("could not find home directory")
 		}
 		kubeconfigPath = filepath.Join(home, ".kube", "config")
 	}
+	// If KUBECONFIG contains multiple paths, use the first one.
+	parts := strings.Split(kubeconfigPath, ":")
+	return parts[0], nil
+}
 
+func loadKubeconfig() (*clientcmdapi.Config, error) {
+	kubeconfigPath, err := getKubeconfigPath()
+	if err != nil {
+		return nil, err
+	}
 	return clientcmd.LoadFromFile(kubeconfigPath)
 }
 
