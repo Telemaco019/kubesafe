@@ -48,17 +48,21 @@ func SelectItem[T comparable](items []T, selectMessage string) (T, error) {
 	return selected, err
 }
 
-func PrintWarning(msg string) {
+func PrintWarning(msg string) error {
 	c := color.New(color.FgYellow)
-	c.Printf("%s\n", msg)
+	_, err := c.Printf("%s\n", msg)
+	return err
 }
 
 func Confirm(message string) (bool, error) {
 	c := color.New(color.FgYellow)
-	c.Printf("%s (y/n): ", message)
+	_, err := c.Printf("%s (y/n): ", message)
+	if err != nil {
+		return false, err
+	}
 
 	var input string
-	_, err := fmt.Scanln(&input)
+	_, err = fmt.Scanln(&input)
 	if err != nil {
 		return false, err
 	}

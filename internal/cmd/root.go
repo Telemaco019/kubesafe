@@ -120,14 +120,14 @@ func NewRootCmd() *cobra.Command {
 			// If no-interactive mode, just abort
 			noInteractive, _ := cmd.Flags().GetBool(FLAG_NO_INTERACTIVE)
 			if noInteractive {
-				utils.PrintWarning(
+				err = utils.PrintWarning(
 					fmt.Sprintf(
 						"[WARNING] Running a protected command on safe context %q.",
 						namespacedContext.Context,
 					),
 				)
 				fmt.Println("Aborted")
-				return nil
+				return err
 			}
 			// Otherwise, ask for confirmation
 			proceed, err := utils.Confirm(
