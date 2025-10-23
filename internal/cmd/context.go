@@ -66,7 +66,7 @@ func newAddContextCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			settings, err := repo.Load()
+			settings, err := repo.LoadSettings()
 			if err != nil {
 				return err
 			}
@@ -91,7 +91,7 @@ func newAddContextCmd() *cobra.Command {
 				return err
 			}
 			// Save settings
-			err = repo.Save(*settings)
+			err = repo.SaveSettings(*settings)
 			if err != nil {
 				return err
 			}
@@ -116,7 +116,7 @@ func newListContextsCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			settings, err := repo.Load()
+			settings, err := repo.LoadSettings()
 			if err != nil {
 				return err
 			}
@@ -148,7 +148,7 @@ func newRemoveContextCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			settings, err := repo.Load()
+			settings, err := repo.LoadSettings()
 			if err != nil {
 				return err
 			}
@@ -173,7 +173,7 @@ func newRemoveContextCmd() *cobra.Command {
 				if err != nil {
 					return err
 				}
-				err = repo.Save(*settings)
+				err = repo.SaveSettings(*settings)
 				if err != nil {
 					return err
 				}

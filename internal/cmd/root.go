@@ -97,7 +97,7 @@ func NewRootCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			settings, err := repo.Load()
+			settings, err := repo.LoadSettings()
 			if err != nil {
 				return err
 			}
