@@ -75,7 +75,6 @@ $(LOCALBIN):
 
 ## Tool Binaries
 GOLANGCI_LINT ?= $(LOCALBIN)/golangci-lint
-GORELEASER ?= $(LOCALBIN)/goreleaser
 LICENSE_EYE ?= $(LOCALBIN)/license-eye
 VHS ?= $(LOCALBIN)/vhs
 
@@ -88,11 +87,6 @@ golangci-lint: $(GOLANGCI_LINT)
 $(GOLANGCI_LINT): $(LOCALBIN)
 	test -s $(LOCALBIN)/golanci-lint || GOBIN=$(LOCALBIN) go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v${GOLANGCI_LINT_VERSION}
 
-
-.PHONY: goreleaser ## Download goreleaser if necessary
-goreleaser: $(GORELEASER)
-$(GORELEASER): $(LOCALBIN)
-	test -s $(LOCALBIN)/goreleaser || GOBIN=$(LOCALBIN) go install github.com/goreleaser/goreleaser@v${GORELEASER_VERSION}
 
 .PHONY: license-eye ## Download license-eye if necessary
 license-eye: $(LICENSE_EYE)
