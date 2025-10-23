@@ -77,7 +77,7 @@ func GetAvailableContexts() (map[string]string, error) {
 		return nil, err
 	}
 
-	var contexts map[string]string = make(map[string]string, len(config.Contexts))
+	var contexts = make(map[string]string, len(config.Contexts))
 	for context := range config.Contexts {
 		contexts[context] = context
 	}

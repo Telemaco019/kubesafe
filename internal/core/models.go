@@ -107,7 +107,7 @@ func (s *Settings) RemoveContext(context string) error {
 	if !s.ContainsContext(context) {
 		return fmt.Errorf("context %q not found", context)
 	}
-	var newContexts []ContextConf = make([]ContextConf, 0)
+	var newContexts = make([]ContextConf, 0)
 	for _, c := range s.Contexts {
 		if c.Name == context {
 			continue
