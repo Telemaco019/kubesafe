@@ -39,10 +39,15 @@ var DEFAULT_KUBECTL_PROTECTED_COMMANDS = []string{
 	"uninstall",
 }
 
+type ContextStats struct {
+	// CanceledCount is the number of times the execution of a command was canceled by the user.
+	CanceledCount uint `yaml:"canceledCount"`
+}
 type ContextConf struct {
-	Name              string   `yaml:"name"`
-	IsRegex           bool     `yaml:"isRegex"`
-	ProtectedCommands []string `yaml:"commands"`
+	Name              string        `yaml:"name"`
+	IsRegex           bool          `yaml:"isRegex"`
+	ProtectedCommands []string      `yaml:"commands"`
+	Stats             *ContextStats `yaml:"stats"`
 }
 
 func (c *ContextConf) IsProtected(command string) bool {
@@ -62,6 +67,7 @@ func NewContextConf(
 		Name:              contextName,
 		ProtectedCommands: safeActions,
 		IsRegex:           utils.IsRegex(contextName),
+		Stats:             &ContextStats{CanceledCount: 0},
 	}
 }
 
@@ -119,19 +125,19 @@ func (s *Settings) RemoveContext(context string) error {
 	return nil
 }
 
-func (s *Settings) GetContextConf(context string) (ContextConf, bool) {
+func (s *Settings) GetContextConf(context string) (*ContextConf, bool) {
 	// First check the lookup map
 	conf, ok := s.contextLookup[context]
 	if ok {
-		return conf, ok
+		return &conf, ok
 	}
 	// If the context is not found in the lookup map, check the regexes
 	for _, regexConf := range s.contextRegexes {
 		if utils.RegexMatches(regexConf.Name, context) {
-			return regexConf, true
+			return &regexConf, true
 		}
 	}
-	return conf, ok
+	return &conf, ok
 }
 
 func (s *Settings) ContainsContext(context string) bool {

@@ -45,6 +45,31 @@ func newTestFsRepository() *FileSystemRepository {
 	}
 }
 
+func TestSettingsRepository_UpdateContextStats(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		repo := newTestFsRepository()
+		settings := newSettings("context1", "context2")
+		// Save
+		err := repo.SaveSettings(settings)
+		assert.NoError(t, err)
+		// Update stats
+		loadedSettings, err := repo.LoadSettings()
+		assert.NoError(t, err)
+		contextConf, found := loadedSettings.GetContextConf("context1")
+		assert.True(t, found)
+		assert.Equal(t, uint(0), contextConf.Stats.CanceledCount)
+		contextConf.Stats.CanceledCount += 1
+		err = repo.SaveSettings(*loadedSettings)
+		assert.NoError(t, err)
+		// Load and verify
+		updatedSettings, err := repo.LoadSettings()
+		assert.NoError(t, err)
+		updatedContextConf, found := updatedSettings.GetContextConf("context1")
+		assert.True(t, found)
+		assert.Equal(t, uint(1), updatedContextConf.Stats.CanceledCount)
+	})
+}
+
 func TestSettingsRepository_SaveAndLoadSettings(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		workingRepository := newTestFsRepository()

@@ -127,7 +127,11 @@ func NewRootCmd() *cobra.Command {
 					),
 				)
 				fmt.Println("Canceled")
-				return err
+				if err != nil {
+					return err
+				}
+				contextConf.Stats.CanceledCount += 1
+				return repo.SaveSettings(*settings)
 			}
 			// Otherwise, ask for confirmation
 			proceed, err := utils.Confirm(
@@ -144,7 +148,8 @@ func NewRootCmd() *cobra.Command {
 				return nil
 			}
 			fmt.Println("Canceled")
-			return nil
+			contextConf.Stats.CanceledCount += 1
+			return repo.SaveSettings(*settings)
 		},
 	}
 
