@@ -126,7 +126,7 @@ func NewRootCmd() *cobra.Command {
 						namespacedContext.Context,
 					),
 				)
-				fmt.Println("Aborted")
+				fmt.Println("Canceled")
 				return err
 			}
 			// Otherwise, ask for confirmation
@@ -143,7 +143,7 @@ func NewRootCmd() *cobra.Command {
 				runCmd(wrappedCmd, wrappedArgs)
 				return nil
 			}
-			fmt.Println("Aborted")
+			fmt.Println("Canceled")
 			return nil
 		},
 	}
