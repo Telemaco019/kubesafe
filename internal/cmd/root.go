@@ -155,6 +155,7 @@ func NewRootCmd() *cobra.Command {
 
 	// Add sub commands
 	rootCmd.AddCommand(NewContextCmd())
+	rootCmd.AddCommand(NewStatsCmd())
 	rootCmd.Flags().
 		Bool(FLAG_NO_INTERACTIVE, false, "If set, kubesafe will directly prevent the execution on protected contexts without asking for confirmation")
 	return rootCmd
