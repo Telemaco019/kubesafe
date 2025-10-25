@@ -41,19 +41,44 @@ func newSettings(
 
 func newTestFsRepository() *FileSystemRepository {
 	return &FileSystemRepository{
-		path: "/tmp/kubesafe-test-settings.yaml",
+		configFilePath: "/tmp/kubesafe-test-settings.yaml",
 	}
 }
 
-func TestSettingsRepository_SaveAndLoad(t *testing.T) {
+func TestSettingsRepository_UpdateContextStats(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		repo := newTestFsRepository()
+		settings := newSettings("context1", "context2")
+		// Save
+		err := repo.SaveSettings(settings)
+		assert.NoError(t, err)
+		// Update stats
+		loadedSettings, err := repo.LoadSettings()
+		assert.NoError(t, err)
+		contextConf, found := loadedSettings.GetContextConf("context1")
+		assert.True(t, found)
+		assert.Equal(t, uint(0), contextConf.Stats.CanceledCount)
+		contextConf.Stats.CanceledCount += 1
+		err = repo.SaveSettings(*loadedSettings)
+		assert.NoError(t, err)
+		// Load and verify
+		updatedSettings, err := repo.LoadSettings()
+		assert.NoError(t, err)
+		updatedContextConf, found := updatedSettings.GetContextConf("context1")
+		assert.True(t, found)
+		assert.Equal(t, uint(1), updatedContextConf.Stats.CanceledCount)
+	})
+}
+
+func TestSettingsRepository_SaveAndLoadSettings(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		workingRepository := newTestFsRepository()
 		settings := newSettings("context1", "context2")
 		// Save
-		err := workingRepository.Save(settings)
+		err := workingRepository.SaveSettings(settings)
 		assert.NoError(t, err)
 		// Load
-		loadedSettings, err := workingRepository.Load()
+		loadedSettings, err := workingRepository.LoadSettings()
 		assert.NoError(t, err)
 		assert.Equal(t, settings, *loadedSettings)
 	})
@@ -66,30 +91,30 @@ func TestSettingsRepository_SaveAndLoad(t *testing.T) {
 		)
 		assert.NoError(t, err)
 		// Save
-		err = workingRepository.Save(settings)
+		err = workingRepository.SaveSettings(settings)
 		assert.NoError(t, err)
 		// Load
-		loadedSettings, err := workingRepository.Load()
+		loadedSettings, err := workingRepository.LoadSettings()
 		assert.NoError(t, err)
 		assert.Equal(t, settings, *loadedSettings)
 	})
 
 	t.Run("Failure", func(t *testing.T) {
 		failingRepo := FileSystemRepository{
-			path: "/unexisting",
+			configFilePath: "/unexisting",
 		}
 		settings := newSettings("context1", "context2")
-		err := failingRepo.Save(settings)
+		err := failingRepo.SaveSettings(settings)
 		assert.Error(t, err)
 	})
 }
 
-func TestSettingsRepository_Load(t *testing.T) {
-	t.Run("Paht not found should return new settings", func(t *testing.T) {
+func TestSettingsRepository_LoadSettings(t *testing.T) {
+	t.Run("Path not found should return new settings", func(t *testing.T) {
 		repo := FileSystemRepository{
-			path: "/unexisting",
+			configFilePath: "/unexisting",
 		}
-		loadedSettings, err := repo.Load()
+		loadedSettings, err := repo.LoadSettings()
 		assert.NoError(t, err)
 		assert.NotNil(t, loadedSettings)
 		assert.Equal(t, core.NewSettings(), *loadedSettings)

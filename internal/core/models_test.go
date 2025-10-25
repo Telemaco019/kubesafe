@@ -159,7 +159,7 @@ func TestGetContextConf(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			context, ok := tc.settings.GetContextConf(tc.contextName)
-			assert.DeepEqual(t, context, tc.wantContext)
+			assert.DeepEqual(t, *context, tc.wantContext)
 			assert.Equal(t, ok, tc.wantOk)
 		})
 	}

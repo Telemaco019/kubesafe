@@ -28,7 +28,7 @@ import (
 )
 
 type FileSystemRepository struct {
-	path string
+	configFilePath string
 }
 
 func NewFileSystemRepository() (*FileSystemRepository, error) {
@@ -45,7 +45,7 @@ func NewFileSystemRepository() (*FileSystemRepository, error) {
 	}
 	if exists {
 		return &FileSystemRepository{
-			path: legacyPath,
+			configFilePath: legacyPath,
 		}, nil
 	}
 
@@ -66,27 +66,27 @@ func NewFileSystemRepository() (*FileSystemRepository, error) {
 		}
 	}
 	return &FileSystemRepository{
-		path: path.Join(kubesafeDir, "config.yaml"),
+		configFilePath: path.Join(kubesafeDir, "config.yaml"),
 	}, nil
 }
 
-func (r *FileSystemRepository) Save(settings core.Settings) error {
-	slog.Debug("Saving settings", "path", r.path)
+func (r *FileSystemRepository) SaveSettings(settings core.Settings) error {
+	slog.Debug("Saving settings", "path", r.configFilePath)
 	settingsFile, err := yaml.Marshal(settings)
 	if err != nil {
 		return fmt.Errorf("error marshalling settings: %w", err)
 	}
-	err = os.WriteFile(r.path, settingsFile, 0644)
+	err = os.WriteFile(r.configFilePath, settingsFile, 0644)
 	if err != nil {
 		return fmt.Errorf("error writing settings file: %w", err)
 	}
 	return nil
 }
 
-func (r *FileSystemRepository) Load() (*core.Settings, error) {
-	slog.Debug("Loading settings", "path", r.path)
+func (r *FileSystemRepository) LoadSettings() (*core.Settings, error) {
+	slog.Debug("Loading settings", "path", r.configFilePath)
 	// If file does not exist, return a new Settings
-	exists, err := utils.FileExists(r.path)
+	exists, err := utils.FileExists(r.configFilePath)
 	if err != nil {
 		return nil, err
 	}
@@ -95,7 +95,7 @@ func (r *FileSystemRepository) Load() (*core.Settings, error) {
 		return &settings, nil
 	}
 	// Otherwise, read it from file
-	settingsFile, err := os.ReadFile(r.path)
+	settingsFile, err := os.ReadFile(r.configFilePath)
 	if err != nil {
 		return nil, fmt.Errorf("error reading settings file: %w", err)
 	}

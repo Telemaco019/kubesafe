@@ -97,7 +97,7 @@ func NewRootCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			settings, err := repo.Load()
+			settings, err := repo.LoadSettings()
 			if err != nil {
 				return err
 			}
@@ -120,14 +120,18 @@ func NewRootCmd() *cobra.Command {
 			// If no-interactive mode, just abort
 			noInteractive, _ := cmd.Flags().GetBool(FLAG_NO_INTERACTIVE)
 			if noInteractive {
-				utils.PrintWarning(
+				err = utils.PrintWarning(
 					fmt.Sprintf(
 						"[WARNING] Running a protected command on safe context %q.",
 						namespacedContext.Context,
 					),
 				)
-				fmt.Println("Aborted")
-				return nil
+				fmt.Println("Canceled")
+				if err != nil {
+					return err
+				}
+				contextConf.Stats.CanceledCount += 1
+				return repo.SaveSettings(*settings)
 			}
 			// Otherwise, ask for confirmation
 			proceed, err := utils.Confirm(
@@ -143,13 +147,15 @@ func NewRootCmd() *cobra.Command {
 				runCmd(wrappedCmd, wrappedArgs)
 				return nil
 			}
-			fmt.Println("Aborted")
-			return nil
+			fmt.Println("Canceled")
+			contextConf.Stats.CanceledCount += 1
+			return repo.SaveSettings(*settings)
 		},
 	}
 
 	// Add sub commands
 	rootCmd.AddCommand(NewContextCmd())
+	rootCmd.AddCommand(NewStatsCmd())
 	rootCmd.Flags().
 		Bool(FLAG_NO_INTERACTIVE, false, "If set, kubesafe will directly prevent the execution on protected contexts without asking for confirmation")
 	return rootCmd
