@@ -119,7 +119,15 @@ To remove a context from your list of safe contexts, run:
 kubesafe context remove my-context
 ```
 
-### Non-interactive mode
+### Show context statistics
+
+To view usage statistics for your safe contexts, including how many times protected commands were blocked, use:
+
+```shell
+kubesafe stats
+```
+
+## Non-interactive mode
 
 Kubesafe supports a non-interactive mode, which can be enabled by adding the `--no-interactive` flag directly after the `kubesafe` command.
 
