@@ -79,7 +79,7 @@ LICENSE_EYE ?= $(LOCALBIN)/license-eye
 VHS ?= $(LOCALBIN)/vhs
 
 ## Tool Versions
-GOLANGCI_LINT_VERSION ?= 2.5.0
+GOLANGCI_LINT_VERSION ?= 2.11.4
 GORELEASER_VERSION ?= 1.26.1
 
 .PHONY: golangci-lint ## Download golanci-lint if necessary
