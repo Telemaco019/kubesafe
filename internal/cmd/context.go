@@ -57,9 +57,34 @@ func selectProtectedCommands(cmd *cobra.Command) ([]string, error) {
 
 func newAddContextCmd() *cobra.Command {
 	addContextCmd := &cobra.Command{
-		Use:          "add",
+		Use:          "add [context-name]",
+		Short:        "Add a context to the safe contexts list",
 		Args:         cobra.MaximumNArgs(1),
 		SilenceUsage: true,
+		ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+			if len(args) != 0 {
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			}
+			contexts, err := utils.GetAvailableContexts()
+			if err != nil {
+				return nil, cobra.ShellCompDirectiveError
+			}
+			repo, err := repositories.NewFileSystemRepository()
+			if err != nil {
+				return nil, cobra.ShellCompDirectiveError
+			}
+			settings, err := repo.LoadSettings()
+			if err != nil {
+				return nil, cobra.ShellCompDirectiveError
+			}
+			var completions []string
+			for name := range contexts {
+				if !settings.ContainsContext(name) {
+					completions = append(completions, name)
+				}
+			}
+			return completions, cobra.ShellCompDirectiveNoFileComp
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Load kubesafe settings
 			repo, err := repositories.NewFileSystemRepository()
@@ -102,6 +127,9 @@ func newAddContextCmd() *cobra.Command {
 
 	// Add flags
 	addContextCmd.Flags().StringSlice(FLAG_COMMANDS, nil, "Comma separated list of safe commands")
+	_ = addContextCmd.RegisterFlagCompletionFunc(FLAG_COMMANDS, func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return core.DEFAULT_KUBECTL_PROTECTED_COMMANDS, cobra.ShellCompDirectiveNoFileComp
+	})
 
 	return addContextCmd
 }
@@ -109,6 +137,7 @@ func newAddContextCmd() *cobra.Command {
 func newListContextsCmd() *cobra.Command {
 	removeContextCmd := &cobra.Command{
 		Use:          "list",
+		Short:        "List all safe contexts",
 		SilenceUsage: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Load kubesafe settings
@@ -140,8 +169,27 @@ func newListContextsCmd() *cobra.Command {
 
 func newRemoveContextCmd() *cobra.Command {
 	removeContextCmd := &cobra.Command{
-		Use:     "remove",
+		Use:     "remove [context-name]",
+		Short:   "Remove a context from the safe contexts list",
 		Aliases: []string{"rm"},
+		ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+			if len(args) != 0 {
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			}
+			repo, err := repositories.NewFileSystemRepository()
+			if err != nil {
+				return nil, cobra.ShellCompDirectiveError
+			}
+			settings, err := repo.LoadSettings()
+			if err != nil {
+				return nil, cobra.ShellCompDirectiveError
+			}
+			var completions []string
+			for _, ctx := range settings.Contexts {
+				completions = append(completions, ctx.Name)
+			}
+			return completions, cobra.ShellCompDirectiveNoFileComp
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Load kubesafe settings
 			repo, err := repositories.NewFileSystemRepository()

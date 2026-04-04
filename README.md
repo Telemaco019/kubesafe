@@ -63,6 +63,53 @@ $ brew install kubesafe
 $ go install github.com/telemaco019/kubesafe/kubesafe@latest
 ```
 
+## Shell completion
+
+Kubesafe supports shell completion for Bash, Zsh, and Fish. The completion scripts automatically delegate to the wrapped command's completion system when completing subcommands (e.g., `kubesafe kubectl get <TAB>` uses kubectl's completions).
+
+### Bash
+
+```bash
+# Load completions for commands you want to wrap (required for delegation)
+source <(kubectl completion bash)
+source <(helm completion bash)  # Add other commands as needed
+
+# Load kubesafe completion
+source <(kubesafe completion bash)
+```
+
+To load completions for each session, add the above lines to your `~/.bashrc`.
+
+### Zsh
+
+```zsh
+# Load completions for commands you want to wrap (required for delegation)
+source <(kubectl completion zsh)
+source <(helm completion zsh)  # Add other commands as needed
+
+# Load kubesafe completion
+source <(kubesafe completion zsh)
+```
+
+To load completions for each session, add the above lines to your `~/.zshrc`.
+
+### Fish
+
+```fish
+# Load completions for commands you want to wrap (required for delegation)
+kubectl completion fish | source
+helm completion fish | source  # Add other commands as needed
+
+# Load kubesafe completion
+kubesafe completion fish | source
+```
+
+To load completions for each session, run:
+
+```fish
+kubesafe completion fish > ~/.config/fish/completions/kubesafe.fish
+```
+
 ## Managing contexts
 
 Kubesafe makes it easy to manage your safe contexts and protected commands. To see all available options, run:

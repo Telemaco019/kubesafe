@@ -17,7 +17,6 @@
 package cmd
 
 import (
-	"bytes"
 	"fmt"
 	"os"
 	"os/exec"
@@ -34,15 +33,9 @@ const (
 
 func runCmd(cmd string, args []string) {
 	execCommand := exec.Command(cmd, args...)
-
-	var output bytes.Buffer
-	execCommand.Stdout = &output
-	execCommand.Stderr = &output
-
 	execCommand.Stdout = os.Stdout
 	execCommand.Stderr = os.Stderr
 	execCommand.Stdin = os.Stdin
-
 	_ = execCommand.Run()
 }
 
@@ -51,7 +44,7 @@ type ParsedCommand struct {
 	WrappedArgs []string
 }
 
-func parseCommand(cmd *cobra.Command, args []string) ParsedCommand {
+func parseCommand(cmd *cobra.Command, args []string) (ParsedCommand, error) {
 	_ = cmd.Flags().Parse(args)
 	kubesafeFlags := make(map[string]struct{})
 	cmd.Flags().VisitAll(func(f *pflag.Flag) {
@@ -65,10 +58,14 @@ func parseCommand(cmd *cobra.Command, args []string) ParsedCommand {
 		}
 	}
 
+	if len(argsWithoutKubesafeFlags) == 0 {
+		return ParsedCommand{}, fmt.Errorf("no command specified")
+	}
+
 	return ParsedCommand{
 		WrappedCmd:  argsWithoutKubesafeFlags[0],
 		WrappedArgs: argsWithoutKubesafeFlags[1:],
-	}
+	}, nil
 }
 
 func NewRootCmd() *cobra.Command {
@@ -76,8 +73,13 @@ func NewRootCmd() *cobra.Command {
 		Use:                "kubesafe [command] [args]",
 		DisableFlagParsing: true,
 		Args:               cobra.ArbitraryArgs,
-		Short:              "", // TODO
+		Short:              "A safety wrapper for kubectl and helm commands",
 		SilenceUsage:       true,
+		ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+			// Let the shell handle first-argument completion (any command)
+			// The shell wrapper will delegate to the wrapped command's completions
+			return nil, cobra.ShellCompDirectiveDefault
+		},
 		PreRun: func(cmd *cobra.Command, args []string) {
 			if len(args) < 2 {
 				showHelp(cmd, args)
@@ -85,7 +87,10 @@ func NewRootCmd() *cobra.Command {
 			}
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			parsedCmd := parseCommand(cmd, args)
+			parsedCmd, err := parseCommand(cmd, args)
+			if err != nil {
+				return err
+			}
 			wrappedCmd := parsedCmd.WrappedCmd
 			wrappedArgs := parsedCmd.WrappedArgs
 
@@ -156,6 +161,7 @@ func NewRootCmd() *cobra.Command {
 	// Add sub commands
 	rootCmd.AddCommand(NewContextCmd())
 	rootCmd.AddCommand(NewStatsCmd())
+	rootCmd.AddCommand(NewCompletionCmd())
 	rootCmd.Flags().
 		Bool(FLAG_NO_INTERACTIVE, false, "If set, kubesafe will directly prevent the execution on protected contexts without asking for confirmation")
 	return rootCmd
