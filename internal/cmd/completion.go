@@ -35,7 +35,7 @@ _kubesafe_wrapper() {
         # Check if the wrapped command has a completion function
         if (( $+functions[_${wrapped_cmd}] )); then
             # Rebuild words array without kubesafe prefix
-            words=("$wrapped_cmd" "${words[@]:3}")
+            words=("$wrapped_cmd" "${words[@]:2}")
             CURRENT=$((CURRENT - 1))
             _${wrapped_cmd}
             return
